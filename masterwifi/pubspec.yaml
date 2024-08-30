@@ -1,0 +1,67 @@
+name: masterwifi
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  wifi_scan: ^0.4.1
+  wifi_info_flutter: any
+  qr_code_scanner: any
+  url_launcher: ^6.3.0
+  flutter_launcher_icons: any
+  wifi_iot: ^0.3.19
+  pretty_qr_code: any
+  percent_indicator: any
+  share_plus: any
+  webview_flutter: ^3.0.0
+  connectivity_plus : ^3.0.3
+  awesome_circular_chart: any
+  flutter_internet_speed_test: any
+  ffi: ^2.0.0
+  permission_handler: ^11.3.1
+  google_sign_in: ^6.2.1
+  provider : any
+  wifi_info_plugin_plus: ^2.0.2
+  network_discovery: ^1.0.0
+  network_info_plus: any
+  android_intent_plus: ^2.0.0
+  flutter_android_intent: ^1.0.0
+  step_progress_indicator: ^1.0.2
+  
+
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animated.jpg
+    - assets/cloud.jpg
+    - assets/logo.png
+    - assets/qrcode.png
+    - assets/signal.png
+    - assets/sharenew.png
+    - assets/speed.png
+    - assets/poor.jpeg
+    - assets/normal.jpeg
+    - assets/very good.jpeg
+    - assets/excellent.jpeg
+    - assets/animated.jpeg
+    - assets/animation1.png
+    - assets/splash.png
+    - assets/scan.png
+    - assets/boost.png
+    - assets/browse.jpeg
+    - assets/safety.jpeg
+    - assets/speed2.jpeg
+    - assets/signal2.jpeg
+    - assets/speeduppage.png
+    - assets/speeduppage1.jpeg
