@@ -14,7 +14,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  wifi_scan: ^0.4.1
+  wifi_scan: ^0.4.0
   wifi_info_flutter: any
   qr_code_scanner: any
   url_launcher: ^6.3.0
@@ -34,10 +34,12 @@ dev_dependencies:
   wifi_info_plugin_plus: ^2.0.2
   network_discovery: ^1.0.0
   network_info_plus: any
-  android_intent_plus: ^2.0.0
+  android_intent_plus: ^5.0.2
   flutter_android_intent: ^1.0.0
   step_progress_indicator: ^1.0.2
-  
+  cloud_firestore: 
+  firebase_core: ^2.0.0
+  firebase_analytics: ^10.0.0
 
 
 flutter:

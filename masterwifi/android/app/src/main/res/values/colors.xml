@@ -1,0 +1,4 @@
+<resources>
+    <!-- Define the colorAccent -->
+    <color name="colorAccent">#FF4081</color> <!-- You can use any color you prefer -->
+</resources>

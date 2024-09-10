@@ -12,6 +12,18 @@
         android:label="masterwifi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
+        <!-- Firebase configuration -->
+        <meta-data
+            android:name="com.google.firebase.analytics.APP_ID"
+            android:value="@string/google_app_id"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -33,6 +45,7 @@
             android:name="flutterEmbedding"
             android:value="2"/>
     </application>
+
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>

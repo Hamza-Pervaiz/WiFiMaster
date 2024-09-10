@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "377190723803",
+    "project_id": "wifi-master-590f1",
+    "storage_bucket": "wifi-master-590f1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377190723803:android:b8b15f1cdc2bbedb53dcfe",
+        "android_client_info": {
+          "package_name": "com.example.masterwifi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRG7hC3y__fj1XPfeDPclf7w4xoA2khko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

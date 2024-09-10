@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/widgets.dart';
@@ -16,7 +17,8 @@ import 'package:masterwifi/speedup.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:share_plus/share_plus.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi_info_flutter/wifi_info_flutter.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:wifi_scan/wifi_scan.dart';
@@ -39,6 +41,7 @@ class _ConnectscreenState extends State<Connectscreen> {
   bool _obscureText = false;
   bool issharinghotspot = false;
   List<WiFiAccessPoint> accessPoints = <WiFiAccessPoint>[];
+  List<Map<String, dynamic>> allHotspots = [];
   Timer? _timer;
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
@@ -247,9 +250,7 @@ class _ConnectscreenState extends State<Connectscreen> {
 
                             if (isConnected) {
                               if (_isChecked && !_serverStarted) {
-                                // Start the local server
-                                createHotspot(ssid, '');
-                                _serverStarted = true;
+                                addData(ssid, password);
 
                                 // Prevent restarting the server
                               }
@@ -307,108 +308,40 @@ class _ConnectscreenState extends State<Connectscreen> {
 
 /////////////////////////////////// HotSpot Functionality------------------------
   List<String> hotspots = [];
+  Future<void> addData(String ssid, String password) async {
+    if (ssid.isEmpty || password.isEmpty) {
+      print("SSID or password cannot be empty");
+      return;
+    }
 
-  HotspotManager _hotspotManager = HotspotManager();
+    try {
+      // Query Firestore to check if the document with the same ssid and password exists
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection("Hotspost999")
+          .where("ssid", isEqualTo: ssid)
+          .where("password", isEqualTo: password)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        // If no matching document exists, add the new document
+        await FirebaseFirestore.instance
+            .collection("Hotspost999")
+            .doc(
+                "gKyxgvZrZPp6K3Dd4QNY") // Optionally, you can use .doc() to generate a new ID or specify an ID
+            .set({"ssid": ssid, "password": password});
+        allHotspots.add({"ssid": ssid, "password": password});
+        print("Data added successfully");
+      } else {
+        allHotspots.add({"ssid": ssid, "password": password});
+        print("Data with the same SSID and password already exists");
+      }
+    } catch (e) {
+      print("Failed to add data: $e");
+    }
+  }
+
   List<CustomWiFiNetwork> availableNetworks = [];
   CustomWiFiNetwork? currentNetwork;
-  static const platform = MethodChannel('com.example.masterwifi/hotspot');
-
-  Future<void> createHotspot(String ssid, String password) async {
-    try {
-      final result = await platform.invokeMethod('createHotspot', {
-        'ssid': ssid,
-        'password': password,
-      });
-      print(result);
-    } on PlatformException catch (e) {
-      print("Failed to create hotspot: '${e.message}'.");
-    }
-  }
-
-  int androidVersion() {
-    if (Platform.isAndroid) {
-      try {
-        // Extracting the major version from the operating system version
-        String versionString = Platform.operatingSystemVersion;
-        List<String> parts = versionString.split(' ');
-
-        if (parts.isNotEmpty) {
-          // Use a regex to extract the version number
-          RegExp versionRegExp = RegExp(r'(\d+)\.(\d+)');
-          Match? match = versionRegExp.firstMatch(parts[0]);
-
-          if (match != null && match.groupCount >= 2) {
-            int majorVersion = int.parse(match.group(1)!);
-            return majorVersion;
-          }
-        }
-      } catch (e) {
-        print("Error parsing Android version: $e");
-      }
-    }
-    return 0; // Default value for non-Android or error cases
-  }
-
-  Future<void> checkHotspotVisibility() async {
-    if (Platform.isAndroid) {
-      List<String>? networks =
-          (await WiFiForIoTPlugin.loadWifiList()).cast<String>();
-      if (networks != null) {
-        print("Available networks:");
-        for (String network in networks) {
-          print(network);
-        }
-      } else {
-        print("No networks found.");
-      }
-    }
-  }
-
-  // Future<CustomWiFiNetwork> _getHotspotInfo() async {
-  //   try {
-  //     final Map<dynamic, dynamic>? info =
-  //         await platform.invokeMethod('getHotspotInfo');
-
-  //     if (info != null) {
-  //       // Cast the map to Map<String, dynamic>
-  //       final Map<String, dynamic> typedInfo = Map<String, dynamic>.from(info);
-
-  //       final String ssid = typedInfo['SSID'] ?? 'Unknown SSID';
-  //       final String band = typedInfo['Band'] ?? 'Unknown Band';
-
-  //       final int frequency = int.tryParse(band) ?? 0;
-
-  //       var network = CustomWiFiNetwork(
-  //         ssid: ssid,
-  //         capabilities: '', // Set this if available or remove if not needed
-  //         frequency: frequency,
-  //         level: 0, // Set this if available or remove if not needed
-  //         bssid: '333',
-  //       );
-  //       currentNetwork = network;
-  //       setState(() {});
-
-  //       return network;
-  //     } else {
-  //       return CustomWiFiNetwork(
-  //         ssid: 'Unknown SSID',
-  //         capabilities: '',
-  //         frequency: 0,
-  //         level: 0,
-  //         bssid: 'Unknown BSSID',
-  //       );
-  //     }
-  //   } on PlatformException catch (e) {
-  //     print("Failed to get hotspot info: ${e.message}");
-  //     return CustomWiFiNetwork(
-  //       ssid: 'Error',
-  //       capabilities: '',
-  //       frequency: 0,
-  //       level: 0,
-  //       bssid: 'Error',
-  //     );
-  //   }
-  // }
 
   Future<void> scanForNetworks() async {
     final List<WiFiAccessPoint> networks =
@@ -422,9 +355,9 @@ class _ConnectscreenState extends State<Connectscreen> {
           bssid: ap.bssid,
         )));
 
-    for (int i = 0; i < availableNetworks.length; i++) {
-      print(availableNetworks[i].ssid);
-    }
+    // for (int i = 0; i < availableNetworks.length; i++) {
+    //   print(availableNetworks[i].ssid);
+    // }
   }
 
   Future<bool> attemptWifiConnection(String ssid, String password) async {
@@ -1594,9 +1527,9 @@ class _ConnectscreenState extends State<Connectscreen> {
                   ? Container(
                       margin: EdgeInsets.only(bottom: 10),
                       color: Colors.white,
-                      height: currentNetwork != null
-                          ? MediaQuery.of(context).size.height * 0.2
-                          : MediaQuery.of(context).size.height * 0.11,
+                      height: allHotspots.isEmpty
+                          ? MediaQuery.of(context).size.height * 0.10
+                          : MediaQuery.of(context).size.height * 0.18,
                       width: constraints.maxWidth,
                       child: Column(
                         children: [
@@ -1639,6 +1572,52 @@ class _ConnectscreenState extends State<Connectscreen> {
                               ),
                             ],
                           ),
+                          allHotspots.isNotEmpty
+                              ? Expanded(
+                                  child: ListView.builder(
+                                    itemCount: allHotspots.length,
+                                    itemBuilder: (context, index) {
+                                      final hotspot = allHotspots[index];
+                                      return ListTile(
+                                        leading: signalStrength != null
+                                            ? DynamicWifiIcon(
+                                                signalStrength: signalStrength!)
+                                            : Text(''),
+                                        subtitle: Text(
+                                          'Open To Connect',
+                                          style: TextStyle(color: Colors.green),
+                                        ),
+                                        title: GestureDetector(
+                                          onTap: () {
+                                            _connectToWifi(
+                                                allHotspots[index]["ssid"]);
+                                          },
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(allHotspots[index]["ssid"] ??
+                                                  ''),
+                                            ],
+                                          ),
+                                        ),
+                                        trailing: ElevatedButton(
+                                          onPressed: () {
+                                            _showWiFiOptions(context,
+                                                allHotspots[index]["ssid"]);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                          ),
+                                          child: const Icon(
+                                            Icons.more_vert,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Container(),
                           currentNetwork != null
                               ? Row(
                                   children: [
@@ -1722,6 +1701,15 @@ class _ConnectscreenState extends State<Connectscreen> {
                       final signalStrength =
                           filteredAccessPoints[index].level ?? 0;
 
+                      Map<String, dynamic>? myhotspot;
+                      if (allHotspots.isNotEmpty) {
+                        myhotspot = allHotspots.firstWhere(
+                          (hotspot) =>
+                              hotspot['ssid'] ==
+                              filteredAccessPoints[index].ssid,
+                          orElse: () => {},
+                        );
+                      }
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ListTile(
@@ -1729,8 +1717,11 @@ class _ConnectscreenState extends State<Connectscreen> {
                               DynamicWifiIcon(signalStrength: signalStrength),
                           title: GestureDetector(
                             onTap: () {
-                              // _showPasswordDialog(
-                              //     context, filteredAccessPoints[index].ssid);
+                              if (myhotspot != null) {
+                                attemptWifiConnection(
+                                    filteredAccessPoints[index].ssid,
+                                    myhotspot['password']);
+                              }
                               connectToHotspot(
                                   filteredAccessPoints[index].ssid);
                               // _connectToWifi(
